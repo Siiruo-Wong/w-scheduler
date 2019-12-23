@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xsd:schema xmlns="http://www.siiruo.wscheduler.com/schema/ws"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            targetNamespace="http://www.siiruo.wscheduler.com/schema/ws"
+            elementFormDefault="qualified"
+            attributeFormDefault="unqualified">
+    <xsd:element name="auto-detect">
+        <xsd:complexType></xsd:complexType>
+    </xsd:element>
+</xsd:schema>
