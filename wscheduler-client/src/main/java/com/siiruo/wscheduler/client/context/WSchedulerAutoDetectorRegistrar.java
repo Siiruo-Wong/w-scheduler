@@ -14,7 +14,7 @@ import org.springframework.core.type.AnnotationMetadata;
 public class WSchedulerAutoDetectorRegistrar implements ImportBeanDefinitionRegistrar {
     @Override
     public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
-        WSchedulerAutoDetectorUtil.buildClient();
-        WSchedulerAutoDetectorUtil.registerWSchedulerAutoDetectorIfNecessary(WSchedulerAutoDetector.class,registry,null);
+        WSchedulerAutoDetectorUtil.buildClientIfNecessary();
+        WSchedulerAutoDetectorUtil.registerWSchedulerAutoDetectorIfNecessary(registry,null);
     }
 }

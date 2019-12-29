@@ -9,7 +9,10 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD,ElementType.TYPE})
 public @interface WScheduler {
-    String name() default "";
+    String name();
+    String execute() default "execute";
     String before() default "before";
     String after() default "after";
+    String init() default "init";
+    String destroy() default "destroy";
 }

@@ -2,6 +2,7 @@ package com.siiruo.wscheduler.client.util;
 
 import com.siiruo.wscheduler.client.bean.WSchedulerConstantType;
 import com.siiruo.wscheduler.client.config.WSchedulerClient;
+import com.siiruo.wscheduler.client.context.WSchedulerAutoDetector;
 import com.siiruo.wscheduler.client.context.WSchedulerContextHolder;
 import com.siiruo.wscheduler.core.exception.WSchedulerLoadingException;
 import com.siiruo.wscheduler.core.util.PropertyUtil;
@@ -20,26 +21,27 @@ import java.util.Properties;
  */
 public class WSchedulerAutoDetectorUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(WSchedulerAutoDetectorUtil.class);
-    public static BeanDefinition registerWSchedulerAutoDetectorIfNecessary(Class<?> clazz, BeanDefinitionRegistry registry,Object source) {
+
+    public static BeanDefinition registerWSchedulerAutoDetectorIfNecessary(BeanDefinitionRegistry registry,Object source) {
         Assert.notNull(registry, "BeanDefinitionRegistry must not be null");
         if (registry.containsBeanDefinition(WSchedulerConstantType.W_SCHEDULER_AUTO_DETECTOR_BEAN_NAME)) {
             return null;
         }
 
-        RootBeanDefinition beanDefinition = new RootBeanDefinition(clazz);
+        RootBeanDefinition beanDefinition = new RootBeanDefinition(WSchedulerAutoDetector.class);
         beanDefinition.setSource(source);
         beanDefinition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
         registry.registerBeanDefinition(WSchedulerConstantType.W_SCHEDULER_AUTO_DETECTOR_BEAN_NAME, beanDefinition);
         return beanDefinition;
     }
 
-    public static void buildClient() throws WSchedulerLoadingException{
+    public static void buildClientIfNecessary() throws WSchedulerLoadingException{
         Properties properties;
         try {
             properties= PropertyUtil.getProperties(WSchedulerConstantType.W_SCHEDULER_CLIENT_APP_INFO_PROPERTIES);
         } catch (IOException e) {
             LOGGER.error("fail to load {} file.",WSchedulerConstantType.W_SCHEDULER_CLIENT_APP_INFO_PROPERTIES);
-            throw new WSchedulerLoadingException("could not load wscheduler client configuration file.\r\nplease add app.properties file in classpath.",e);
+            throw new WSchedulerLoadingException("could not load w-scheduler client configuration file.\r\nplease add app.properties file in classpath.",e);
         }
 
         WSchedulerClient client=new WSchedulerClient();
@@ -49,7 +51,7 @@ public class WSchedulerAutoDetectorUtil {
         client.setAppName(properties.getProperty(WSchedulerConstantType.CLIENT_APP_NAME_PROPERTY_NAME));
         client.setAppDesc(properties.getProperty(WSchedulerConstantType.CLIENT_APP_DESC_PROPERTY_NAME));
         client.setServerUrl(properties.getProperty(WSchedulerConstantType.CLIENT_SERVER_URL_PROPERTY_NAME));
-        client.setServerPort(Integer.valueOf(properties.getProperty(WSchedulerConstantType.CLIENT_PORT_PROPERTY_NAME)));
+        client.setServerPort(Integer.valueOf(properties.getProperty(WSchedulerConstantType.CLIENT_SERVER_PORT_PROPERTY_NAME)));
 
         WSchedulerContextHolder.setClient(client);
     }

@@ -14,4 +14,9 @@ public abstract class WSchedulerConstantType {
     public static final String CLIENT_APP_DESC_PROPERTY_NAME="wscheduler.client.app.desc";
     public static final String CLIENT_SERVER_URL_PROPERTY_NAME="wscheduler.client.server.url";
     public static final String CLIENT_SERVER_PORT_PROPERTY_NAME="wscheduler.client.server.port";
+    public static final String DEFAULT_EXECUTOR_EXECUTE_METHOD_NAME="execute";
+    public static final String DEFAULT_EXECUTOR_BEFORE_METHOD_NAME="before";
+    public static final String DEFAULT_EXECUTOR_AFTER_METHOD_NAME ="after";
+    public static final String DEFAULT_EXECUTOR_INIT_METHOD_NAME="init";
+    public static final String DEFAULT_EXECUTOR_DESTROY_METHOD_NAME="destroy";
 }
