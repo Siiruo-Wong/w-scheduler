@@ -17,6 +17,7 @@ public class WSchedulerBeanDefinitionParser implements BeanDefinitionParser{
     @Override
     public BeanDefinition parse(Element element, ParserContext parserContext) {
         WSchedulerAutoDetectorUtil.buildClientIfNecessary();
+        WSchedulerAutoDetectorUtil.registerWSchedulerLifecycleProcessorIfNecessary(parserContext.getRegistry(),parserContext.extractSource(element));
         WSchedulerAutoDetectorUtil.registerWSchedulerAutoDetectorIfNecessary(parserContext.getRegistry(), parserContext.extractSource(element));
         return null;
     }

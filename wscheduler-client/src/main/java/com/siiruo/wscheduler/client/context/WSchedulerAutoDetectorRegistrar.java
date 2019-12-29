@@ -15,6 +15,7 @@ public class WSchedulerAutoDetectorRegistrar implements ImportBeanDefinitionRegi
     @Override
     public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
         WSchedulerAutoDetectorUtil.buildClientIfNecessary();
+        WSchedulerAutoDetectorUtil.registerWSchedulerLifecycleProcessorIfNecessary(registry,null);
         WSchedulerAutoDetectorUtil.registerWSchedulerAutoDetectorIfNecessary(registry,null);
     }
 }

@@ -4,6 +4,7 @@ import com.siiruo.wscheduler.client.bean.WSchedulerConstantType;
 import com.siiruo.wscheduler.client.config.WSchedulerClient;
 import com.siiruo.wscheduler.client.context.WSchedulerAutoDetector;
 import com.siiruo.wscheduler.client.context.WSchedulerContextHolder;
+import com.siiruo.wscheduler.client.context.WSchedulerLifecycleProcessor;
 import com.siiruo.wscheduler.core.exception.WSchedulerLoadingException;
 import com.siiruo.wscheduler.core.util.PropertyUtil;
 import org.slf4j.Logger;
@@ -32,6 +33,19 @@ public class WSchedulerAutoDetectorUtil {
         beanDefinition.setSource(source);
         beanDefinition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
         registry.registerBeanDefinition(WSchedulerConstantType.W_SCHEDULER_AUTO_DETECTOR_BEAN_NAME, beanDefinition);
+        return beanDefinition;
+    }
+
+    public static BeanDefinition registerWSchedulerLifecycleProcessorIfNecessary(BeanDefinitionRegistry registry,Object source) {
+        Assert.notNull(registry, "BeanDefinitionRegistry must not be null");
+        if (registry.containsBeanDefinition(WSchedulerConstantType.W_SCHEDULER_AUTO_LIFECYCLE_PROCESSOR_BEAN_NAME)) {
+            return null;
+        }
+
+        RootBeanDefinition beanDefinition = new RootBeanDefinition(WSchedulerLifecycleProcessor.class);
+        beanDefinition.setSource(source);
+        beanDefinition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+        registry.registerBeanDefinition(WSchedulerConstantType.W_SCHEDULER_AUTO_LIFECYCLE_PROCESSOR_BEAN_NAME, beanDefinition);
         return beanDefinition;
     }
 
