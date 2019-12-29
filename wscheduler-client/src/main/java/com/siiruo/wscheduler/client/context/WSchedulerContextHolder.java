@@ -3,6 +3,7 @@ package com.siiruo.wscheduler.client.context;
 
 import com.siiruo.wscheduler.client.bean.SingleExecutor;
 import com.siiruo.wscheduler.client.config.WSchedulerClient;
+import com.siiruo.wscheduler.core.exception.WSchedulerExecutorConflictException;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,6 +34,12 @@ public class WSchedulerContextHolder{
     }
 
     public static void addExecutor(SingleExecutor executor) {
+        SingleExecutor oldExecutor = executors.get(executor.getName());
+        if (oldExecutor!=null) {
+            throw new WSchedulerExecutorConflictException(
+                    String.format("the executor named {} in {}",executor.getName(),executor.getClass().getName()),
+                    String.format("the executor named {} in {}",oldExecutor.getName(),oldExecutor.getClass().getName()));
+        }
         WSchedulerContextHolder.executors.put(executor.getName(),executor);
     }
 }
