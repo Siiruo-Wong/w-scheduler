@@ -10,6 +10,7 @@ import org.springframework.context.SmartLifecycle;
  */
 public class WSchedulerLifecycleProcessor implements SmartLifecycle,DisposableBean {
     private volatile boolean status;
+    private SchedulingProcessor schedulingProcessor=new SchedulingProcessor();
     /**
      * be invoked when container is stopping,but actually after {@link #stop()}
      * aim to destroy itself
@@ -17,7 +18,7 @@ public class WSchedulerLifecycleProcessor implements SmartLifecycle,DisposableBe
      */
     @Override
     public void destroy() throws Exception {
-        //todo sth
+        //nothing todo for itself
     }
 
     /**
@@ -25,8 +26,8 @@ public class WSchedulerLifecycleProcessor implements SmartLifecycle,DisposableBe
      */
     @Override
     public void start() {
-        //todo sth
         status(true);
+        schedulingProcessor.work();
     }
 
     /**
@@ -38,8 +39,8 @@ public class WSchedulerLifecycleProcessor implements SmartLifecycle,DisposableBe
      */
     @Override
     public void stop() {
-        //todo sth
         status(false);
+        schedulingProcessor.onStop();
     }
 
     @Override

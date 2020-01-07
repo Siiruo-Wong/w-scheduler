@@ -19,6 +19,7 @@
         <spring.version>5.1.0.RELEASE</spring.version>
         <log4j.version>1.7.29</log4j.version>
         <wscheduler-core.version>1.0-SNAPSHOT</wscheduler-core.version>
+        <netty.version>4.1.44.Final</netty.version>
     </properties>
 
     <dependencyManagement>
@@ -27,6 +28,17 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${log4j.version}</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/io.netty/netty-all -->
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-all</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>fastjson</artifactId>
+                <version>1.2.50</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

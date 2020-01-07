@@ -20,4 +20,5 @@ public abstract class WSchedulerConstantType {
     public static final String DEFAULT_EXECUTOR_AFTER_METHOD_NAME ="after";
     public static final String DEFAULT_EXECUTOR_INIT_METHOD_NAME="init";
     public static final String DEFAULT_EXECUTOR_DESTROY_METHOD_NAME="destroy";
+    public static final int BEAT_TIME_PERIOD = 30;
 }
