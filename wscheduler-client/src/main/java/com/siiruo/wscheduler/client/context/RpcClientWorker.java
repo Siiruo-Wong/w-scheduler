@@ -32,7 +32,7 @@ public class RpcClientWorker implements Worker {
 
     @Override
     public void work() {
-         ThreadPoolExecutor serverHandlerPool =  new ThreadPoolExecutor(100, 500, 60L,
+         ThreadPoolExecutor threadPoolExecutor =  new ThreadPoolExecutor(100, 500, 60L,
                 TimeUnit.SECONDS,
                 new LinkedBlockingQueue<>(1000),
                 r-> new Thread(r, "RpcClientWorker"),
@@ -53,7 +53,7 @@ public class RpcClientWorker implements Worker {
                                     .addLast(new IdleStateHandler(0, 0, WSchedulerConstantType.BEAT_TIME_PERIOD * 3, TimeUnit.SECONDS))
                                     .addLast(new HttpServerCodec())
                                     .addLast(new HttpObjectAggregator(5 * 1024 * 1024))
-                                    .addLast(new RpcClientChannelHandler(serverHandlerPool,executor));
+                                    .addLast(new RpcClientChannelHandler(threadPoolExecutor,executor));
                         }
                     })
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
@@ -69,7 +69,7 @@ public class RpcClientWorker implements Worker {
             }
         } finally {
             try {
-                serverHandlerPool.shutdown();
+                threadPoolExecutor.shutdown();
             } catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
             }
