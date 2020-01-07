@@ -12,8 +12,7 @@ import com.siiruo.wscheduler.core.bean.Worker;
 public class SchedulingProcessor implements Worker {
     private final ThreadGroup threadGroup=new ThreadGroup("WSchedulerThreadGroup");
     private final AbstractExecutor executor=new ClientExecutor();
-    private final WSchedulerClient client=WSchedulerContextHolder.getClient();
-    private final ThreadWorker executeWorker=new ThreadWorker(threadGroup,"executeWorker",new RpcClientWorker(client,executor));
+    private final ThreadWorker executeWorker=new ThreadWorker(threadGroup,"executeWorker",new RpcClientWorker(executor));
 
     private volatile boolean initialized;
 

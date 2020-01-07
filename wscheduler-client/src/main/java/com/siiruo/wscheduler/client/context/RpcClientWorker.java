@@ -23,11 +23,10 @@ import java.util.concurrent.*;
  */
 public class RpcClientWorker implements Worker {
     private static final Logger LOGGER = LoggerFactory.getLogger(RpcClientWorker.class);
-    private WSchedulerClient client;
-    private AbstractExecutor executor;
+    private WSchedulerClient client=WSchedulerContextHolder.getClient();
+    private AbstractExecutor executor;//ClientExecutor
 
-    public RpcClientWorker(WSchedulerClient client, AbstractExecutor executor) {
-        this.client = client;
+    public RpcClientWorker(AbstractExecutor executor) {
         this.executor = executor;
     }
 
@@ -69,9 +68,8 @@ public class RpcClientWorker implements Worker {
                 LOGGER.error("w-scheduler rpc server stopped error.", e);
             }
         } finally {
-            // stop
             try {
-                serverHandlerPool.shutdown();	// shutdownNow
+                serverHandlerPool.shutdown();
             } catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
             }
