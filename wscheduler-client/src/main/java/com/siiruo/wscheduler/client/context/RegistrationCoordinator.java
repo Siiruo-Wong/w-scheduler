@@ -15,6 +15,13 @@ public class RegistrationCoordinator implements Worker{
             if (interrupted) {
                 break;
             }
+
+            //todo
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                break;
+            }
         }
     }
 
