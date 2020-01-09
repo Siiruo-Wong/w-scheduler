@@ -2,6 +2,7 @@ package com.siiruo.wscheduler.client.context;
 
 import com.siiruo.wscheduler.client.bean.ClientExecutor;
 import com.siiruo.wscheduler.client.bean.SingleExecutor;
+import com.siiruo.wscheduler.core.bean.Launcher;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.context.SmartLifecycle;
 
@@ -10,7 +11,7 @@ import org.springframework.context.SmartLifecycle;
  */
 public class WSchedulerLifecycleProcessor implements SmartLifecycle,DisposableBean {
     private volatile boolean status;
-    private SchedulingProcessor schedulingProcessor=new SchedulingProcessor();
+    private Launcher schedulingLauncher =new SchedulingLauncher();
     /**
      * be invoked when container is stopping,but actually after {@link #stop()}
      * aim to destroy itself
@@ -27,7 +28,7 @@ public class WSchedulerLifecycleProcessor implements SmartLifecycle,DisposableBe
     @Override
     public void start() {
         status(true);
-        schedulingProcessor.work();
+        schedulingLauncher.start();
     }
 
     /**
@@ -40,7 +41,7 @@ public class WSchedulerLifecycleProcessor implements SmartLifecycle,DisposableBe
     @Override
     public void stop() {
         status(false);
-        schedulingProcessor.onStop();
+        schedulingLauncher.stop();
     }
 
     @Override

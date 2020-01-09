@@ -5,6 +5,5 @@ package com.siiruo.wscheduler.core.bean;
  */
 public interface Worker {
     void work();
-    void onStart();
-    void onStop();
+    void interrupt();
 }

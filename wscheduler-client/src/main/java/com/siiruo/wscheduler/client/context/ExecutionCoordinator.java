@@ -1,10 +1,8 @@
 package com.siiruo.wscheduler.client.context;
 
-import com.siiruo.wscheduler.client.bean.ClientExecutor;
 import com.siiruo.wscheduler.client.bean.WSchedulerConstantType;
 import com.siiruo.wscheduler.client.config.WSchedulerClient;
-import com.siiruo.wscheduler.core.bean.AbstractExecutor;
-import com.siiruo.wscheduler.core.bean.Worker;
+import com.siiruo.wscheduler.core.bean.*;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -21,21 +19,23 @@ import java.util.concurrent.*;
 /**
  * Created by siiruo wong on 2020/1/7.
  */
-public class RpcClientWorker implements Worker {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RpcClientWorker.class);
-    private WSchedulerClient client=WSchedulerContextHolder.getClient();
+public class ExecutionCoordinator implements Worker,Sensor<ExecutionCoordinator> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExecutionCoordinator.class);
+    private WSchedulerClient client;
     private AbstractExecutor executor;//ClientExecutor
+    private ThreadDecoratedLauncher registerWorker;
+    private volatile boolean working;
 
-    public RpcClientWorker(AbstractExecutor executor) {
+    public ExecutionCoordinator(AbstractExecutor executor) {
         this.executor = executor;
+        this.client=WSchedulerContextHolder.getClient();
     }
-
     @Override
     public void work() {
-         ThreadPoolExecutor threadPoolExecutor =  new ThreadPoolExecutor(100, 500, 60L,
+        ThreadPoolExecutor threadPoolExecutor =  new ThreadPoolExecutor(100, 500, 60L,
                 TimeUnit.SECONDS,
                 new LinkedBlockingQueue<>(1000),
-                r-> new Thread(r, "RpcClientWorker"),
+                r-> new Thread(r, "ExecutionCoordinator"),
                 (r,e)->{
                     //throw new Exception("Thread pool is EXHAUSTED!");
                 });
@@ -57,10 +57,10 @@ public class RpcClientWorker implements Worker {
                         }
                     })
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
-            ChannelFuture future = bootstrap.bind(client.getClientPort()).sync();
+            ChannelFuture future = bootstrap.bind(client.getClientPort()).sync();//sensitive to InterruptedException
             LOGGER.info("w-scheduler rpc server started successfully.");
-            onStart();
-            future.channel().closeFuture().sync();
+            onStart(this);
+            future.channel().closeFuture().sync();//sensitive to InterruptedException
         } catch (InterruptedException e) {
             if (e instanceof InterruptedException) {
                 LOGGER.info("w-scheduler rpc server stopped.");
@@ -83,13 +83,28 @@ public class RpcClientWorker implements Worker {
     }
 
     @Override
-    public void onStart() {
-        //注册
+    public void interrupt() {
+        onStop(this);
+    }
+
+    public boolean status() {
+        return this.working;
     }
 
     @Override
-    public void onStop() {
-        //1、移除删除注册
-        //2、注销线程
+    public void onStart(ExecutionCoordinator target) {
+        if (!status()) {
+            this.working =true;
+            this.registerWorker=new ThreadDecoratedLauncher(SchedulingLauncher.THREAD_GROUP,"registerWorker",new RegistrationCoordinator());
+            this.registerWorker.start();
+        }
+    }
+
+    @Override
+    public void onStop(ExecutionCoordinator target) {
+        if (status()) {
+            this.working =false;
+            this.registerWorker.stop();
+        }
     }
 }

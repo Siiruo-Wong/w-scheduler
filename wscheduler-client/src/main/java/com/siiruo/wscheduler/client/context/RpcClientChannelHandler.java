@@ -1,9 +1,7 @@
 package com.siiruo.wscheduler.client.context;
 
-import com.siiruo.wscheduler.client.bean.ClientExecutor;
-import com.siiruo.wscheduler.core.bean.AbstractExecutor;
 import com.siiruo.wscheduler.core.bean.ExecutorParameter;
-import com.siiruo.wscheduler.core.bean.IExecutor;
+import com.siiruo.wscheduler.core.bean.Executor;
 import com.siiruo.wscheduler.core.exception.WSchedulerRpcException;
 import com.siiruo.wscheduler.core.util.JsonUtil;
 import io.netty.buffer.ByteBufUtil;
@@ -23,8 +21,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 public class RpcClientChannelHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
     private static final Logger LOGGER = LoggerFactory.getLogger(RpcClientChannelHandler.class);
     private ThreadPoolExecutor poolExecutor;
-    private IExecutor clientExecutor;
-    public RpcClientChannelHandler(ThreadPoolExecutor poolExecutor, IExecutor clientExecutor) {
+    private Executor clientExecutor;
+    public RpcClientChannelHandler(ThreadPoolExecutor poolExecutor, Executor clientExecutor) {
         this.poolExecutor = poolExecutor;
         this.clientExecutor = clientExecutor;
     }
