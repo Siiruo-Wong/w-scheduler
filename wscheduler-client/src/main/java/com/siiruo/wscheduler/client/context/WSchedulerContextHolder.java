@@ -66,7 +66,7 @@ public class WSchedulerContextHolder{
             ExecutorInfo executorInfo=new ExecutorInfo();
             executorInfo.setName(value.getName());
             executorInfo.setTarget(value.getTarget().getClass().getName());
-            executorInfo.setTarget(value.getExecute().getName());
+            executorInfo.setExecute(value.getExecute().getName());
             if (value.getInit()!=null) {
                 executorInfo.setInit(value.getInit().getName());
             }

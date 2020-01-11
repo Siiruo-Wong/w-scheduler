@@ -15,6 +15,6 @@ public class RegistrationHandler {
     private WSchedulerClientConfig clientConfig= WSchedulerContextHolder.getClientConfig();
     public RegisterResponseType register(RegisterRequestType parameter) throws WSchedulerRemoteException {
         String url= URLUtil.buildURL(clientConfig.getServerUrl(),clientConfig.getClientPort(), ApiConstantType.EXECUTOR_REGISTER_PATH_IN_CONSOLE);
-        return null;
+        return new RegisterResponseType();
     }
 }

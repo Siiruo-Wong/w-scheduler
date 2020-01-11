@@ -91,7 +91,7 @@ public class ExecutionWorker implements Worker,Sensor<ExecutionWorker> {
             server.join();
         } catch (Exception e) {
             if (e instanceof InterruptedException) {
-                LOGGER.error("w-scheduler rpc server stopped error.", e);
+                LOGGER.error("w-scheduler rpc server stopped error.ExecutionWorker", e);
             }
         }finally {
             try {
@@ -106,6 +106,7 @@ public class ExecutionWorker implements Worker,Sensor<ExecutionWorker> {
 
     @Override
     public void interrupt() {
+        LOGGER.info("w-scheduler ExecutionWorker interrupt.");
         onStop(this);
     }
 
@@ -122,6 +123,7 @@ public class ExecutionWorker implements Worker,Sensor<ExecutionWorker> {
 
     @Override
     public void onStop(ExecutionWorker target) {
+        LOGGER.info("w-scheduler ExecutionWorker onStop.");
         if (status()) {
             this.working =false;
             for (Launcher childLauncher : this.childLaunchers) {

@@ -8,6 +8,8 @@ import com.siiruo.wscheduler.core.type.RegisterRequestType;
 import com.siiruo.wscheduler.core.bean.Worker;
 import com.siiruo.wscheduler.core.type.RegisterResponseType;
 import com.siiruo.wscheduler.core.type.ResponseCodeType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -18,6 +20,7 @@ import java.util.Map;
  * Created by siiruo wong on 2020/1/8.
  */
 public class RegistrationWorker implements Worker{
+    private static final Logger LOGGER = LoggerFactory.getLogger(RegistrationWorker.class);
     private final RegistrationHandler registrationHandler=new RegistrationHandler();
     private RegisterRequestType registerParameter;
     private volatile boolean interrupted;
@@ -27,12 +30,13 @@ public class RegistrationWorker implements Worker{
         RegisterResponseType response;
         for (;;){
             response = registrationHandler.register(registerParameter);
-            if ((ResponseCodeType.SUCCESS.code==response.getResultType().getCode())||interrupted) {
-                break;
-            }
+//            if ((ResponseCodeType.SUCCESS.code==response.getResultType().getCode())||interrupted) {
+//                break;
+//            }
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
+                LOGGER.error("w-scheduler rpc server stopped error.RegistrationWorker", e);
                 break;
             }
         }
@@ -41,6 +45,7 @@ public class RegistrationWorker implements Worker{
     @Override
     public void interrupt() {
         //Thread.currentThread().isInterrupted()=true
+        LOGGER.info("w-scheduler RegistrationWorker interrupt.");
         interrupted=true;
     }
 

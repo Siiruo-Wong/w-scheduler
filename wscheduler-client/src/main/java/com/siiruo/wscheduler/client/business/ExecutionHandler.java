@@ -100,6 +100,14 @@ public class ExecutionHandler extends AbstractHandler {
                     this.resultType=new ResultType(ResponseCodeType.SUCCESS);
                     this.executors= WSchedulerContextHolder.getRegisterInfo().getExecutors();
                 }
+
+                public List<ExecutorInfo> getExecutors() {
+                    return executors;
+                }
+
+                public void setExecutors(List<ExecutorInfo> executors) {
+                    this.executors = executors;
+                }
             };
             return responseType;
         }
