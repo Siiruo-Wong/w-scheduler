@@ -1,10 +1,10 @@
 package com.siiruo.wscheduler.client.util;
 
 import com.siiruo.wscheduler.client.bean.WSchedulerConstantType;
-import com.siiruo.wscheduler.client.config.WSchedulerClient;
+import com.siiruo.wscheduler.client.config.WSchedulerClientConfig;
 import com.siiruo.wscheduler.client.context.WSchedulerAutoDetector;
 import com.siiruo.wscheduler.client.context.WSchedulerContextHolder;
-import com.siiruo.wscheduler.client.context.WSchedulerLifecycleProcessor;
+import com.siiruo.wscheduler.client.context.WSchedulerSchedulingLauncher;
 import com.siiruo.wscheduler.core.exception.WSchedulerLoadingException;
 import com.siiruo.wscheduler.core.util.PropertyUtil;
 import org.slf4j.Logger;
@@ -42,7 +42,7 @@ public class WSchedulerAutoDetectorUtil {
             return null;
         }
 
-        RootBeanDefinition beanDefinition = new RootBeanDefinition(WSchedulerLifecycleProcessor.class);
+        RootBeanDefinition beanDefinition = new RootBeanDefinition(WSchedulerSchedulingLauncher.class);
         beanDefinition.setSource(source);
         beanDefinition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
         registry.registerBeanDefinition(WSchedulerConstantType.W_SCHEDULER_AUTO_LIFECYCLE_PROCESSOR_BEAN_NAME, beanDefinition);
@@ -58,16 +58,16 @@ public class WSchedulerAutoDetectorUtil {
             throw new WSchedulerLoadingException("could not load w-scheduler client configuration file.\r\nplease add app.properties file in classpath.",e);
         }
 
-        WSchedulerClient client=new WSchedulerClient();
-        client.setClientIp(properties.getProperty(WSchedulerConstantType.CLIENT_IP_PROPERTY_NAME));
-        client.setClientPort(Integer.valueOf(properties.getProperty(WSchedulerConstantType.CLIENT_PORT_PROPERTY_NAME)));
-        client.setAppId(Long.valueOf(properties.getProperty(WSchedulerConstantType.CLIENT_APP_ID_PROPERTY_NAME)));
-        client.setAppName(properties.getProperty(WSchedulerConstantType.CLIENT_APP_NAME_PROPERTY_NAME));
-        client.setAppDesc(properties.getProperty(WSchedulerConstantType.CLIENT_APP_DESC_PROPERTY_NAME));
-        client.setServerUrl(properties.getProperty(WSchedulerConstantType.CLIENT_SERVER_URL_PROPERTY_NAME));
-        client.setServerPort(Integer.valueOf(properties.getProperty(WSchedulerConstantType.CLIENT_SERVER_PORT_PROPERTY_NAME)));
+        WSchedulerClientConfig clientConfig=new WSchedulerClientConfig();
+        clientConfig.setClientIp(properties.getProperty(WSchedulerConstantType.CLIENT_IP_PROPERTY_NAME));
+        clientConfig.setClientPort(Integer.valueOf(properties.getProperty(WSchedulerConstantType.CLIENT_PORT_PROPERTY_NAME)));
+        clientConfig.setAppId(Long.valueOf(properties.getProperty(WSchedulerConstantType.CLIENT_APP_ID_PROPERTY_NAME)));
+        clientConfig.setAppName(properties.getProperty(WSchedulerConstantType.CLIENT_APP_NAME_PROPERTY_NAME));
+        clientConfig.setAppDesc(properties.getProperty(WSchedulerConstantType.CLIENT_APP_DESC_PROPERTY_NAME));
+        clientConfig.setServerUrl(properties.getProperty(WSchedulerConstantType.CLIENT_SERVER_URL_PROPERTY_NAME));
+        clientConfig.setServerPort(Integer.valueOf(properties.getProperty(WSchedulerConstantType.CLIENT_SERVER_PORT_PROPERTY_NAME)));
 
-        WSchedulerContextHolder.setClient(client);
+        WSchedulerContextHolder.setClientConfig(clientConfig);
     }
 
 }

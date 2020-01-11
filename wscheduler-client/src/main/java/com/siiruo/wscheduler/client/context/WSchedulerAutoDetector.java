@@ -3,13 +3,12 @@ package com.siiruo.wscheduler.client.context;
 import com.siiruo.wscheduler.client.annotation.WScheduler;
 import com.siiruo.wscheduler.client.bean.SingleExecutor;
 import com.siiruo.wscheduler.client.bean.WSchedulerConstantType;
-import com.siiruo.wscheduler.core.bean.ExecutorParameter;
+import com.siiruo.wscheduler.core.bean.ExecuteParameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.beans.factory.config.InstantiationAwareBeanPostProcessor;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.StringUtils;
 
@@ -95,7 +94,7 @@ public class WSchedulerAutoDetector implements BeanPostProcessor {
 
         InternalExecutorParamBuilder builder=new InternalExecutorParamBuilder();
         try {
-            builder.execute = clazz.getMethod(execute, ExecutorParameter.class);
+            builder.execute = clazz.getMethod(execute, ExecuteParameter.class);
             builder.execute.setAccessible(true);
         } catch (NoSuchMethodException e) {
             LOGGER.error("{} method not found.",execute);

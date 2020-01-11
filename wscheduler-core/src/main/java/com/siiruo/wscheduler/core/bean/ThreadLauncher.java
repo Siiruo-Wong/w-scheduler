@@ -3,10 +3,10 @@ package com.siiruo.wscheduler.core.bean;
 /**
  * Created by siiruo wong on 2019/12/30.
  */
-public class ThreadDecoratedLauncher implements Launcher {
+public class ThreadLauncher implements Launcher {
     private Thread thread;
     private Worker delegate;
-    public ThreadDecoratedLauncher(ThreadGroup group, String name, Worker worker) {
+    public ThreadLauncher(ThreadGroup group, String name, Worker worker) {
         this.delegate=worker;
         this.thread=new Thread(group,()->this.delegate.work(),name);
         this.thread.setDaemon(true);

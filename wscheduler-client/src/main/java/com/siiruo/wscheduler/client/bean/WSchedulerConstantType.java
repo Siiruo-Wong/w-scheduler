@@ -5,7 +5,8 @@ package com.siiruo.wscheduler.client.bean;
  */
 public abstract class WSchedulerConstantType {
     public static final String W_SCHEDULER_AUTO_DETECTOR_BEAN_NAME = "com.siiruo.wscheduler.client.context.WSchedulerAutoDetector";
-    public static final String W_SCHEDULER_AUTO_LIFECYCLE_PROCESSOR_BEAN_NAME = "com.siiruo.wscheduler.client.context.WSchedulerLifecycleProcessor";
+    public static final String W_SCHEDULER_AUTO_LIFECYCLE_PROCESSOR_BEAN_NAME = "com.siiruo.wscheduler.client.context.WSchedulerSchedulingLauncher";
+    public static final String W_SCHEDULER_CLIENT_CONTEXT_PATH="/wscheduler";
     public static final String W_SCHEDULER_CLIENT_BEAN_NAME="wscheduler-client";
     public static final String W_SCHEDULER_CLIENT_APP_INFO_PROPERTIES="app.properties";
     public static final String CLIENT_IP_PROPERTY_NAME="wscheduler.client.ip";

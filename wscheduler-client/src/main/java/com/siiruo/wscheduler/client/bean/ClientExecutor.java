@@ -1,8 +1,9 @@
 package com.siiruo.wscheduler.client.bean;
 
 import com.siiruo.wscheduler.client.context.WSchedulerContextHolder;
-import com.siiruo.wscheduler.core.bean.AbstractExecutor;
-import com.siiruo.wscheduler.core.bean.ExecutorParameter;
+import com.siiruo.wscheduler.core.bean.LifecycleExecutor;
+import com.siiruo.wscheduler.core.bean.ExecuteParameter;
+import com.siiruo.wscheduler.core.exception.WSchedulerExecutingException;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -10,12 +11,16 @@ import java.util.Map;
 /**
  * Created by siiruo wong on 2019/12/29.
  */
-public class ClientExecutor extends AbstractExecutor{
+public class ClientExecutor implements LifecycleExecutor {
     @Override
-    public void execute(ExecutorParameter parameter) {
+    public void execute(ExecuteParameter parameter) throws WSchedulerExecutingException {
         SingleExecutor executor = WSchedulerContextHolder.getExecutor(parameter.getExecutorName());
         if (executor!=null) {
-            executor.execute(parameter);
+            try {
+                executor.execute(parameter);
+            } catch (WSchedulerExecutingException e) {
+
+            }
         }
     }
 

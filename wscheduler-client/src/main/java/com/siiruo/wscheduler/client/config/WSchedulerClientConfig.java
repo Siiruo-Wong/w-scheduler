@@ -3,7 +3,7 @@ package com.siiruo.wscheduler.client.config;
 /**
  * Created by siiruo wong on 2019/12/21.
  */
-public class WSchedulerClient {
+public class WSchedulerClientConfig {
     private String clientIp;
     private Integer clientPort;
     private Long appId;
@@ -13,7 +13,7 @@ public class WSchedulerClient {
     private Integer serverPort;
 
 
-    public WSchedulerClient() {
+    public WSchedulerClientConfig() {
     }
 
     public String getClientIp() {
@@ -74,7 +74,7 @@ public class WSchedulerClient {
 
     @Override
     public String toString() {
-        return "WSchedulerClient{" +
+        return "WSchedulerClientConfig{" +
                 "clientIp='" + clientIp + '\'' +
                 ", clientPort=" + clientPort +
                 ", appId=" + appId +

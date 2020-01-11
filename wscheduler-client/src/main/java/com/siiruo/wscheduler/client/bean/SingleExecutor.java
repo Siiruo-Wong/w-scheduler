@@ -1,7 +1,8 @@
 package com.siiruo.wscheduler.client.bean;
 
-import com.siiruo.wscheduler.core.bean.AbstractExecutor;
-import com.siiruo.wscheduler.core.bean.ExecutorParameter;
+import com.siiruo.wscheduler.core.bean.LifecycleExecutor;
+import com.siiruo.wscheduler.core.bean.ExecuteParameter;
+import com.siiruo.wscheduler.core.exception.WSchedulerExecutingException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -9,7 +10,7 @@ import java.lang.reflect.Method;
 /**
  * Created by siiruo wong on 2019/12/29.
  */
-public class SingleExecutor extends AbstractExecutor {
+public class SingleExecutor implements LifecycleExecutor {
     private Object target;
     private String name;
     private Method execute;
@@ -40,7 +41,7 @@ public class SingleExecutor extends AbstractExecutor {
         this.destroy = destroy;
     }
 
-    private synchronized void internalExecute(ExecutorParameter parameter){
+    private synchronized void internalExecute(ExecuteParameter parameter) throws WSchedulerExecutingException {
         if (!initialized) {
             init();
         }
@@ -52,21 +53,25 @@ public class SingleExecutor extends AbstractExecutor {
             execute.setAccessible(true);
             execute.invoke(target,parameter);
         } catch (IllegalAccessException e) {
+            throw new WSchedulerExecutingException(e);
         } catch (InvocationTargetException e) {
+            throw new WSchedulerExecutingException(e);
         }finally {
             if (after!=null) {
                 try {
                     after.setAccessible(true);
                     after.invoke(target);
                 } catch (IllegalAccessException e) {
+                    throw new WSchedulerExecutingException(e);
                 } catch (InvocationTargetException e) {
+                    throw new WSchedulerExecutingException(e);
                 }
             }
         }
     }
 
     @Override
-    public void execute(ExecutorParameter parameter) {
+    public void execute(ExecuteParameter parameter) throws WSchedulerExecutingException{
         internalExecute(parameter);
     }
 
@@ -104,5 +109,25 @@ public class SingleExecutor extends AbstractExecutor {
 
     public String getName() {
         return name;
+    }
+
+    public Method getExecute() {
+        return execute;
+    }
+
+    public Method getBefore() {
+        return before;
+    }
+
+    public Method getAfter() {
+        return after;
+    }
+
+    public Method getInit() {
+        return init;
+    }
+
+    public Method getDestroy() {
+        return destroy;
     }
 }

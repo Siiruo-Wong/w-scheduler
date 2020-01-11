@@ -1,8 +1,8 @@
-package com.siiruo.wscheduler.client.context;
+package com.siiruo.wscheduler.client.business;
 
-import com.siiruo.wscheduler.core.bean.ExecutorParameter;
+import com.siiruo.wscheduler.core.bean.ExecuteParameter;
 import com.siiruo.wscheduler.core.bean.Executor;
-import com.siiruo.wscheduler.core.exception.WSchedulerRpcException;
+import com.siiruo.wscheduler.core.exception.WSchedulerRemoteException;
 import com.siiruo.wscheduler.core.util.JsonUtil;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
@@ -18,11 +18,11 @@ import java.util.concurrent.ThreadPoolExecutor;
 /**
  * Created by siiruo wong on 2020/1/7.
  */
-public class RpcClientChannelHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RpcClientChannelHandler.class);
+public class RemoteChannelHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RemoteChannelHandler.class);
     private ThreadPoolExecutor poolExecutor;
     private Executor clientExecutor;
-    public RpcClientChannelHandler(ThreadPoolExecutor poolExecutor, Executor clientExecutor) {
+    public RemoteChannelHandler(ThreadPoolExecutor poolExecutor, Executor clientExecutor) {
         this.poolExecutor = poolExecutor;
         this.clientExecutor = clientExecutor;
     }
@@ -38,9 +38,9 @@ public class RpcClientChannelHandler extends SimpleChannelInboundHandler<FullHtt
     private void process(ChannelHandlerContext ctx, String uri, byte[] requestBytes, boolean keepAlive){
         try {
             if (requestBytes.length == 0) {
-                throw new WSchedulerRpcException("w-scheduler client receive an empty request.");
+                throw new WSchedulerRemoteException("w-scheduler client receive an empty request.");
             }
-            ExecutorParameter parameter = JsonUtil.toBean(requestBytes, ExecutorParameter.class);
+            ExecuteParameter parameter = JsonUtil.toBean(requestBytes, ExecuteParameter.class);
             clientExecutor.execute(parameter);
             byte[] responseBytes = JsonUtil.toJSONBytes("success");
             writeResponse(ctx, keepAlive, responseBytes);
