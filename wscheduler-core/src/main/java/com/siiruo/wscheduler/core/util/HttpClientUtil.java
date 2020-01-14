@@ -9,6 +9,7 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.*;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -20,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -293,7 +295,7 @@ public final class HttpClientUtil {
     }
 
 
-    private static HttpClientResult doRequest(CloseableHttpClient httpClient, HttpRequestBase httpMethod){
+    private static HttpClientResult doRequest(CloseableHttpClient httpClient, HttpRequestBase httpMethod) throws Exception{
         HttpClientResult result;
         CloseableHttpResponse httpResponse=null;
         try {
@@ -309,10 +311,10 @@ public final class HttpClientUtil {
             }
         } catch (IOException e) {
             LOGGER.error("an IOException occurs when executing request.",e);
-            result=new HttpClientResult(HttpStatus.SC_INTERNAL_SERVER_ERROR,"failure",e);
+            throw e;
         } catch (ParseException e) {
             LOGGER.error("a ParseException occurs when executing request.",e);
-            result=new HttpClientResult(HttpStatus.SC_INTERNAL_SERVER_ERROR,"failure",e);
+            throw e;
         }finally {
             if (httpResponse!=null) {
                 try {

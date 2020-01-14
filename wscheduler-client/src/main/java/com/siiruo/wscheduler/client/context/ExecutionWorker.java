@@ -115,6 +115,7 @@ public class ExecutionWorker implements Worker,Sensor<ExecutionWorker> {
         if (!status()) {
             this.working =true;
             addChildLauncher(new ThreadLauncher(WSchedulerSchedulingLauncher.THREAD_GROUP,"registerWorker",new RegistrationWorker()));
+            addChildLauncher(new ThreadLauncher(WSchedulerSchedulingLauncher.THREAD_GROUP,"logWorker",new LogWorker()));
             for (Launcher childLauncher : this.childLaunchers) {
                 childLauncher.start();
             }

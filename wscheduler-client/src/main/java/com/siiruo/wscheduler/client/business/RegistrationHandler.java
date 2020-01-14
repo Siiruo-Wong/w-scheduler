@@ -21,12 +21,11 @@ public class RegistrationHandler {
     private WSchedulerClientConfig clientConfig= WSchedulerContextHolder.getClientConfig();
     public RegisterResponseType register(RegisterRequestType parameter){
         String url= URLUtil.buildURL(clientConfig.getServerUrl(),clientConfig.getClientPort(), ApiConstantType.EXECUTOR_REGISTER_PATH_IN_CONSOLE);
-        RegisterResponseType response;
+        RegisterResponseType response=null;
         try {
             response= HttpClientUtil.doPost(url, parameter, RegisterResponseType.class);
         } catch (Exception e) {
             LOGGER.error("an Exception occurs when registering application and executor info.",e);
-            response=new RegisterResponseType(new ResultType(ResponseCodeType.UN_KNOWN));
         }
         if (response==null) {
             response=new RegisterResponseType(new ResultType(ResponseCodeType.UN_KNOWN));
