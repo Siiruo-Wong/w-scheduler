@@ -1,35 +1,44 @@
 package com.siiruo.wscheduler.core.util;
 
+import com.siiruo.wscheduler.core.type.RequestType;
+import com.siiruo.wscheduler.core.type.ResponseType;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
+import org.apache.http.ParseException;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.*;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 
 /**
  * Created by siiruo wong on 2020/1/9.
  */
 public final class HttpClientUtil {
-    private HttpClientUtil(){}
-    // 编码格式。发送编码格式统一用UTF-8
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpClientUtil.class);
     private static final String ENCODING = "UTF-8";
-
-    // 设置连接超时时间，单位毫秒。
     private static final int CONNECT_TIMEOUT = 6000;
-
-    // 请求获取数据的超时时间(即响应时间)，单位毫秒。
     private static final int SOCKET_TIMEOUT = 6000;
-
+    private static final Map<String,String> JSON_HEADERS = new HashMap<>();
+    static {
+        JSON_HEADERS.put("connection","Keep-Alive");
+        JSON_HEADERS.put("Content-Type","application/json;charset=UTF-8");
+        JSON_HEADERS.put("Accept-Charset","application/json;charset=UTF-8");
+    }
+    private HttpClientUtil(){}
     public static class HttpClientResult implements Serializable {
 
         /**
@@ -42,6 +51,8 @@ public final class HttpClientUtil {
          */
         private String content;
 
+        private Throwable ex;
+
         public HttpClientResult(int code) {
             this.code = code;
         }
@@ -49,6 +60,12 @@ public final class HttpClientUtil {
         public HttpClientResult(int code, String content) {
             this.code = code;
             this.content = content;
+        }
+
+        public HttpClientResult(int code, String content, Throwable ex) {
+            this.code = code;
+            this.content = content;
+            this.ex = ex;
         }
     }
 
@@ -85,20 +102,8 @@ public final class HttpClientUtil {
      * @throws Exception
      */
     public static HttpClientResult doGet(String url, Map<String, String> headers, Map<String, String> params) throws Exception {
-        // 创建httpClient对象
         CloseableHttpClient httpClient = HttpClients.createDefault();
-
-        // 创建访问的地址
-        URIBuilder uriBuilder = new URIBuilder(url);
-        if (params != null) {
-            Set<Map.Entry<String, String>> entrySet = params.entrySet();
-            for (Map.Entry<String, String> entry : entrySet) {
-                uriBuilder.setParameter(entry.getKey(), entry.getValue());
-            }
-        }
-
-        // 创建http对象
-        HttpGet httpGet = new HttpGet(uriBuilder.build());
+        HttpGet httpGet = new HttpGet(buildParamURI(url,params));
         /**
          * setConnectTimeout：设置连接超时时间，单位毫秒。
          * setConnectionRequestTimeout：设置从connect Manager(连接池)获取Connection
@@ -107,20 +112,8 @@ public final class HttpClientUtil {
          */
         RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(CONNECT_TIMEOUT).setSocketTimeout(SOCKET_TIMEOUT).build();
         httpGet.setConfig(requestConfig);
-
-        // 设置请求头
-        packageHeader(headers, httpGet);
-
-        // 创建httpResponse对象
-        CloseableHttpResponse httpResponse = null;
-
-        try {
-            // 执行请求并获得响应结果
-            return getHttpClientResult(httpResponse, httpClient, httpGet);
-        } finally {
-            // 释放资源
-            release(httpResponse, httpClient);
-        }
+        buildHeader(headers, httpGet);
+        return doRequest(httpClient,httpGet);
     }
 
     /**
@@ -131,66 +124,70 @@ public final class HttpClientUtil {
      * @throws Exception
      */
     public static HttpClientResult doPost(String url) throws Exception {
-        return doPost(url, null, null);
+        return doPost(url, null, null,null);
     }
 
     /**
      * 发送post请求；带请求参数
      *
      * @param url 请求地址
-     * @param params 参数集合
+     * @param formData 参数集合
      * @return
      * @throws Exception
      */
-    public static HttpClientResult doPost(String url, Map<String, String> params) throws Exception {
-        return doPost(url, null, params);
+    public static HttpClientResult doPost(String url, Map<String, String> formData) throws Exception {
+        return doPost(url, null, null,formData);
     }
+
+
+    /**
+     *
+     * @param url
+     * @param request
+     * @param clazz
+     * @param <R>
+     * @return
+     * @throws Exception
+     */
+    public static <R extends ResponseType> R doPost(String url, RequestType request, Class<R> clazz) throws Exception {
+        HttpClientResult result = doPost(url, JSON_HEADERS, null, request);
+        if (result.code== HttpStatus.SC_OK) {
+            return StringUtil.isBlank(result.content) ? null : JsonUtil.toBean(result.content, clazz);
+        }
+        return null;
+    }
+
 
     /**
      * 发送post请求；带请求头和请求参数
-     *
+     *  formData 和 body 只能二选其一，同时headers必须是与之对应的配置
      * @param url 请求地址
      * @param headers 请求头集合
      * @param params 请求参数集合
+     * @param body body
      * @return
      * @throws Exception
      */
-    public static HttpClientResult doPost(String url, Map<String, String> headers, Map<String, String> params) throws Exception {
-        // 创建httpClient对象
+    public static HttpClientResult doPost(String url, Map<String, String> headers, Map<String, String> params,Object body) throws Exception {
         CloseableHttpClient httpClient = HttpClients.createDefault();
-
-        // 创建http对象
-        HttpPost httpPost = new HttpPost(url);
-        /**
-         * setConnectTimeout：设置连接超时时间，单位毫秒。
-         * setConnectionRequestTimeout：设置从connect Manager(连接池)获取Connection
-         * 超时时间，单位毫秒。这个属性是新加的属性，因为目前版本是可以共享连接池的。
-         * setSocketTimeout：请求获取数据的超时时间(即响应时间)，单位毫秒。 如果访问一个接口，多少时间内无法返回数据，就直接放弃此次调用。
-         */
+        HttpPost httpPost = new HttpPost(buildParamURI(url,params));
+        buildHeader(headers, httpPost);
+        if(body!=null){
+            if (body instanceof Map) {
+                buildFormData((Map<String,String>)body, httpPost);
+            }else if(body instanceof String){
+                StringEntity requestEntity = new StringEntity((String) body,ENCODING);
+                requestEntity.setContentEncoding(ENCODING);
+                httpPost.setEntity(requestEntity);
+            } else {
+                StringEntity requestEntity = new StringEntity(JsonUtil.toJSONString(body),ENCODING);
+                requestEntity.setContentEncoding(ENCODING);
+                httpPost.setEntity(requestEntity);
+            }
+        }
         RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(CONNECT_TIMEOUT).setSocketTimeout(SOCKET_TIMEOUT).build();
         httpPost.setConfig(requestConfig);
-        // 设置请求头
-		/*httpPost.setHeader("Cookie", "");
-		httpPost.setHeader("Connection", "keep-alive");
-		httpPost.setHeader("Accept", "application/json");
-		httpPost.setHeader("Accept-Language", "zh-CN,zh;q=0.9");
-		httpPost.setHeader("Accept-Encoding", "gzip, deflate, br");
-		httpPost.setHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");*/
-        packageHeader(headers, httpPost);
-
-        // 封装请求参数
-        packageParam(params, httpPost);
-
-        // 创建httpResponse对象
-        CloseableHttpResponse httpResponse = null;
-
-        try {
-            // 执行请求并获得响应结果
-            return getHttpClientResult(httpResponse, httpClient, httpPost);
-        } finally {
-            // 释放资源
-            release(httpResponse, httpClient);
-        }
+        return doRequest(httpClient,httpPost);
     }
 
     /**
@@ -217,16 +214,8 @@ public final class HttpClientUtil {
         HttpPut httpPut = new HttpPut(url);
         RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(CONNECT_TIMEOUT).setSocketTimeout(SOCKET_TIMEOUT).build();
         httpPut.setConfig(requestConfig);
-
-        packageParam(params, httpPut);
-
-        CloseableHttpResponse httpResponse = null;
-
-        try {
-            return getHttpClientResult(httpResponse, httpClient, httpPut);
-        } finally {
-            release(httpResponse, httpClient);
-        }
+        buildFormData(params, httpPut);
+        return doRequest(httpClient,httpPut);
     }
 
     /**
@@ -241,13 +230,7 @@ public final class HttpClientUtil {
         HttpDelete httpDelete = new HttpDelete(url);
         RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(CONNECT_TIMEOUT).setSocketTimeout(SOCKET_TIMEOUT).build();
         httpDelete.setConfig(requestConfig);
-
-        CloseableHttpResponse httpResponse = null;
-        try {
-            return getHttpClientResult(httpResponse, httpClient, httpDelete);
-        } finally {
-            release(httpResponse, httpClient);
-        }
+        return doRequest(httpClient,httpDelete);
     }
 
     /**
@@ -260,24 +243,21 @@ public final class HttpClientUtil {
      */
     public static HttpClientResult doDelete(String url, Map<String, String> params) throws Exception {
         if (params == null) {
-            params = new HashMap<String, String>();
+            params = new HashMap<>();
         }
-
         params.put("_method", "delete");
         return doPost(url, params);
     }
 
     /**
      * Description: 封装请求头
-     * @param params
+     * @param headers
      * @param httpMethod
      */
-    public static void packageHeader(Map<String, String> params, HttpRequestBase httpMethod) {
-        // 封装请求头
-        if (params != null) {
-            Set<Map.Entry<String, String>> entrySet = params.entrySet();
+    public static void buildHeader(Map<String, String> headers, HttpRequestBase httpMethod) {
+        if (headers != null&&!headers.isEmpty()) {
+            Set<Map.Entry<String, String>> entrySet = headers.entrySet();
             for (Map.Entry<String, String> entry : entrySet) {
-                // 设置到请求头到HttpRequestBase对象中
                 httpMethod.setHeader(entry.getKey(), entry.getValue());
             }
         }
@@ -286,64 +266,71 @@ public final class HttpClientUtil {
     /**
      * Description: 封装请求参数
      *
-     * @param params
+     * @param formData
      * @param httpMethod
      * @throws UnsupportedEncodingException
      */
-    public static void packageParam(Map<String, String> params, HttpEntityEnclosingRequestBase httpMethod)
-            throws UnsupportedEncodingException {
-        // 封装请求参数
-        if (params != null) {
+    public static void buildFormData(Map<String, String> formData, HttpEntityEnclosingRequestBase httpMethod) throws UnsupportedEncodingException {
+        if (formData != null&&!formData.isEmpty()) {
             List<NameValuePair> nvps = new ArrayList<NameValuePair>();
-            Set<Map.Entry<String, String>> entrySet = params.entrySet();
+            Set<Map.Entry<String, String>> entrySet = formData.entrySet();
             for (Map.Entry<String, String> entry : entrySet) {
                 nvps.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
             }
-
-            // 设置到请求的http对象中
             httpMethod.setEntity(new UrlEncodedFormEntity(nvps, ENCODING));
         }
     }
 
-    /**
-     * Description: 获得响应结果
-     *
-     * @param httpResponse
-     * @param httpClient
-     * @param httpMethod
-     * @return
-     * @throws Exception
-     */
-    public static HttpClientResult getHttpClientResult(CloseableHttpResponse httpResponse,
-                                                       CloseableHttpClient httpClient, HttpRequestBase httpMethod) throws Exception {
-        // 执行请求
-        httpResponse = httpClient.execute(httpMethod);
-
-        // 获取返回结果
-        if (httpResponse != null && httpResponse.getStatusLine() != null) {
-            String content = "";
-            if (httpResponse.getEntity() != null) {
-                content = EntityUtils.toString(httpResponse.getEntity(), ENCODING);
+    public static URI buildParamURI(String basicUrl, Map<String, String> params) throws URISyntaxException {
+        URIBuilder uriBuilder = new URIBuilder(basicUrl);
+        if (params!=null&&!params.isEmpty()) {
+            Set<Map.Entry<String, String>> entrySet = params.entrySet();
+            for (Map.Entry<String, String> entry : entrySet) {
+                uriBuilder.setParameter(entry.getKey(), entry.getValue());
             }
-            return new HttpClientResult(httpResponse.getStatusLine().getStatusCode(), content);
         }
-        return new HttpClientResult(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+        return uriBuilder.build();
     }
 
-    /**
-     * Description: 释放资源
-     *
-     * @param httpResponse
-     * @param httpClient
-     * @throws IOException
-     */
-    public static void release(CloseableHttpResponse httpResponse, CloseableHttpClient httpClient) throws IOException {
-        // 释放资源
-        if (httpResponse != null) {
-            httpResponse.close();
+
+    private static HttpClientResult doRequest(CloseableHttpClient httpClient, HttpRequestBase httpMethod){
+        HttpClientResult result;
+        CloseableHttpResponse httpResponse=null;
+        try {
+            httpResponse = httpClient.execute(httpMethod);
+            if (httpResponse != null && httpResponse.getStatusLine() != null) {
+                String content = "";
+                if (httpResponse.getEntity() != null) {
+                    content = EntityUtils.toString(httpResponse.getEntity(), ENCODING);
+                }
+                result=new HttpClientResult(httpResponse.getStatusLine().getStatusCode(), content);
+            }else{
+                result=new HttpClientResult(HttpStatus.SC_INTERNAL_SERVER_ERROR,"no response");
+            }
+        } catch (IOException e) {
+            LOGGER.error("an IOException occurs when executing request.",e);
+            result=new HttpClientResult(HttpStatus.SC_INTERNAL_SERVER_ERROR,"failure",e);
+        } catch (ParseException e) {
+            LOGGER.error("a ParseException occurs when executing request.",e);
+            result=new HttpClientResult(HttpStatus.SC_INTERNAL_SERVER_ERROR,"failure",e);
+        }finally {
+            if (httpResponse!=null) {
+                try {
+                    httpResponse.close();
+                } catch (IOException e) {
+                    LOGGER.error("an IOException occurs when closing response connection.",e);
+                    //do not affect the current result
+                }
+            }
+            if (httpClient!=null) {
+                try {
+                    httpClient.close();
+                } catch (IOException e) {
+                    LOGGER.error("an IOException occurs when closing client connection.",e);
+                    //do not affect the current result
+                }
+            }
         }
-        if (httpClient != null) {
-            httpClient.close();
-        }
+        return result==null?new HttpClientResult(HttpStatus.SC_INTERNAL_SERVER_ERROR,"no response"):result;
     }
 }

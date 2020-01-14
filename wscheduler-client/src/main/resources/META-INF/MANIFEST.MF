@@ -1,4 +1,0 @@
-Implementation-Title: Wanted Scheduler
-Automatic-Module-Name: W-Scheduler
-Implementation-Version: 1.0-SNAPSHOT
-Built-By: com.siiruo

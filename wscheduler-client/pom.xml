@@ -10,10 +10,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>wscheduler-client</artifactId>
+    <version>${w-scheduler.client.version}</version>
 
     <properties>
         <jetty.version>9.4.25.v20191220</jetty.version>
-
+        <w-scheduler.client.version>1.0.1-SNAPSHOT</w-scheduler.client.version>
     </properties>
 
     <dependencies>
@@ -58,21 +59,35 @@
 
     <build>
         <plugins>
-            <!--MANIFEST.MF-->
+            <!--MANIFEST.MF 创建方式1：直接指定MANIFEST.MF路径-->
+            <!--<plugin>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-jar-plugin</artifactId>-->
+                <!--<configuration>-->
+                    <!--<archive>-->
+                        <!--<manifestFile>-->
+                            <!--src/main/resources/META-INF/MANIFEST.MF-->
+                        <!--</manifestFile>-->
+                        <!--&lt;!&ndash;<manifest>&ndash;&gt;-->
+                        <!--&lt;!&ndash;<addClasspath>true</addClasspath>&ndash;&gt;-->
+                        <!--&lt;!&ndash;</manifest>&ndash;&gt;-->
+                    <!--</archive>-->
+                <!--</configuration>-->
+            <!--</plugin>-->
+            <!--MANIFEST.MF 创建方式2：直接指定MANIFEST.MF 文件内容-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <configuration>
                     <archive>
-                        <manifestFile>
-                            src/main/resources/META-INF/MANIFEST.MF
-                        </manifestFile>
-                        <!--<manifest>-->
-                        <!--<addClasspath>true</addClasspath>-->
-                        <!--</manifest>-->
+                        <manifestEntries>
+                            <Implementation-Title>Wanted Scheduler</Implementation-Title>
+                            <Implementation-Version>${w-scheduler.client.version}</Implementation-Version>
+                        </manifestEntries>
                     </archive>
                 </configuration>
             </plugin>
+
 
         </plugins>
     </build>

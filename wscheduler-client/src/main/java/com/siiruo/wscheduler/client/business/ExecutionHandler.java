@@ -3,10 +3,7 @@ package com.siiruo.wscheduler.client.business;
 import com.siiruo.wscheduler.client.context.WSchedulerContextHolder;
 import com.siiruo.wscheduler.core.bean.*;
 import com.siiruo.wscheduler.core.exception.WSchedulerRemoteException;
-import com.siiruo.wscheduler.core.type.DefaultResponseType;
-import com.siiruo.wscheduler.core.type.ResponseCodeType;
-import com.siiruo.wscheduler.core.type.ResponseType;
-import com.siiruo.wscheduler.core.type.ResultType;
+import com.siiruo.wscheduler.core.type.*;
 import com.siiruo.wscheduler.core.util.JsonUtil;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
@@ -97,7 +94,7 @@ public class ExecutionHandler extends AbstractHandler {
             ResponseType responseType=new ResponseType() {
                 List<ExecutorInfo> executors;
                 {
-                    this.resultType=new ResultType(ResponseCodeType.SUCCESS);
+                    this.result =new ResultType(ResponseCodeType.SUCCESS);
                     this.executors= WSchedulerContextHolder.getRegisterInfo().getExecutors();
                 }
 
@@ -142,12 +139,16 @@ public class ExecutionHandler extends AbstractHandler {
                 throw new WSchedulerRemoteException("w-scheduler client receive an empty request.");
             }
 
-            ExecuteParameter parameter = JsonUtil.toBean(sb.toString(), ExecuteParameter.class);
+            ExecuteRequestType requestType = JsonUtil.toBean(sb.toString(), ExecuteRequestType.class);
+            if (requestType==null||requestType.getParameter()==null) {
+                throw new WSchedulerRemoteException("w-scheduler client receive an empty request.");
+            }
+
             if (threadPoolExecutor!=null) {
                 //async,if rejected then called by current thread in sync
-                threadPoolExecutor.execute(()->executor.execute(parameter));
+                threadPoolExecutor.execute(()->executor.execute(requestType.getParameter()));
             }else{
-                executor.execute(parameter);
+                executor.execute(requestType.getParameter());
             }
             return new DefaultResponseType();
         }

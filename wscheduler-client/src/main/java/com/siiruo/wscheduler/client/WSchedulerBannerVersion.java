@@ -11,15 +11,15 @@ public final class WSchedulerBannerVersion {
     private static final StringBuilder BANNER=new StringBuilder();
     private static final String W_SCHEDULER = " :: W-Scheduler :: ";
     static {
-        BANNER.append(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\r\n")
-                .append("  **** **** ****        ******            ****                     ****           ****                   \r\n")
-                .append("  *  * *  * *  *       *     *            *  *                     *  *           *  *                   \r\n")
-                .append("  *  * *  * *  *       *    *      ****   *  *****     ****      ***  * **** **** *  *    ****     ****  \r\n")
-                .append("  *  * *  * *  * *****  *    *   *      * *       *  *  **  *  *   *  * *  * *  * *  *  *  **  * *    *  \r\n")
-                .append("  *  * *  * *  * *****   *    * *   ***   *   *   * *   ***   *   *   * *  * *  * *  * *   ***   *  *    \r\n")
-                .append("   *  *  * *  *        *     *   *      * *  * *  *  *      *  *     *  *       * *  *  *      * *  *    \r\n")
-                .append("     * *  * *          ******      ****   **** ****    ****      ***      * * *   ****    ****   ****    \r\n")
-                .append(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\r\n");
+        BANNER.append(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\r\n")
+                .append("  **** **** ****          ******               ****                       ****             ****                     \r\n")
+                .append("  *  * *  * *  *         *     *               *  *                       *  *             *  *                     \r\n")
+                .append("  *  * *  * *  *         *    *        ****    *  *****      ****       ***  *  **** ****  *  *     ****      ****  \r\n")
+                .append("  *  * *  * *  *  *****    *    *    *      *  *       *   *  **  *   *   *  *  *  * *  *  *  *   *  **  *  *    *  \r\n")
+                .append("  *  * *  * *  *  *****     *    *  *   ***    *   *   *  *   ***    *   *   *  *  * *  *  *  *  *   ***    *  *    \r\n")
+                .append("   *  *  * *  *          *     *     *      *  *  * *  *   *      *   *     *   *       *  *  *   *      *  *  *    \r\n")
+                .append("     * *  * *            ******        ****    **** ****     ****       ***      * * *     ****     ****    ****    \r\n")
+                .append(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n");
     }
     private WSchedulerBannerVersion(){}
 
@@ -32,8 +32,8 @@ public final class WSchedulerBannerVersion {
         String version = getVersion();
         version = (version != null) ? " (v" + version + ")" : "";
         StringBuilder padding = new StringBuilder();
-        //BANNER first row length =105
-        while (padding.length() < 105 - (version.length() + W_SCHEDULER.length())) {
+        //BANNER first row length =116
+        while (padding.length() < 116 - (version.length() + W_SCHEDULER.length())) {
             padding.append(" ");
         }
         LOGGER.info(String.format("\r\n\r\n%s%s%s%s\r\n",BANNER.toString(),W_SCHEDULER,padding.toString(),version));

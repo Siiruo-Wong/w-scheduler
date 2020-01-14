@@ -6,20 +6,20 @@ import java.io.Serializable;
  * Created by siiruo wong on 2020/1/10.
  */
 public abstract class ResponseType implements Serializable {
-    public ResultType resultType;
+    public ResultType result;
 
     public ResponseType() {
     }
 
-    public ResponseType(ResultType resultType) {
-        this.resultType = resultType;
+    public ResponseType(ResultType result) {
+        this.result = result;
     }
 
-    public ResultType getResultType() {
-        return resultType;
+    public ResultType getResult() {
+        return result;
     }
 
-    public void setResultType(ResultType resultType) {
-        this.resultType = resultType;
+    public void setResult(ResultType result) {
+        this.result = result;
     }
 }

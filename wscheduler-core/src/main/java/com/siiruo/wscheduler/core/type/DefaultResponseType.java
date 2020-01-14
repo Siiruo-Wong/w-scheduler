@@ -5,7 +5,7 @@ package com.siiruo.wscheduler.core.type;
  */
 public class DefaultResponseType extends ResponseType{
     public DefaultResponseType() {
-        this.resultType=new ResultType(ResponseCodeType.SUCCESS);
+        this.result =new ResultType(ResponseCodeType.SUCCESS);
     }
 
     public DefaultResponseType(ResultType resultType) {
