@@ -10,8 +10,6 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
-import org.eclipse.jetty.util.thread.QueuedThreadPool;
-import org.eclipse.jetty.util.thread.ThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +26,8 @@ public class ExecutionWorker implements Worker,Sensor<ExecutionWorker> {
     private final List<Launcher> childLaunchers=new LinkedList<>();
     private WSchedulerClientConfig clientConfig;
     private LifecycleExecutor executor;//ClientExecutor
-    private volatile boolean working;
+    private volatile boolean started;
+    private volatile boolean stoped;
 
     public ExecutionWorker(LifecycleExecutor executor) {
         this.executor = executor;
@@ -96,6 +95,7 @@ public class ExecutionWorker implements Worker,Sensor<ExecutionWorker> {
         }finally {
             try {
                 server.stop();
+                server.destroy();
                 threadPoolExecutor.shutdown();
                 onStop(this);
             } catch (Exception e) {
@@ -112,10 +112,11 @@ public class ExecutionWorker implements Worker,Sensor<ExecutionWorker> {
 
     @Override
     public void onStart(ExecutionWorker target) {
-        if (!status()) {
-            this.working =true;
+        if (!this.started) {
+            this.started =true;
             addChildLauncher(new ThreadLauncher(WSchedulerSchedulingLauncher.THREAD_GROUP,"registerWorker",new RegistrationWorker()));
-            addChildLauncher(new ThreadLauncher(WSchedulerSchedulingLauncher.THREAD_GROUP,"logWorker",new LogWorker()));
+            addChildLauncher(new ThreadLauncher(WSchedulerSchedulingLauncher.THREAD_GROUP,"memoryNoticeWorker",new MemoryNoticeWorker()));
+            addChildLauncher(new ThreadLauncher(WSchedulerSchedulingLauncher.THREAD_GROUP,"persistenceNoticeWorker",new PersistenceNoticeWorker()));
             for (Launcher childLauncher : this.childLaunchers) {
                 childLauncher.start();
             }
@@ -125,16 +126,12 @@ public class ExecutionWorker implements Worker,Sensor<ExecutionWorker> {
     @Override
     public void onStop(ExecutionWorker target) {
         LOGGER.info("w-scheduler ExecutionWorker onStop.");
-        if (status()) {
-            this.working =false;
+        if (!this.stoped) {
+            this.stoped =true;
             for (Launcher childLauncher : this.childLaunchers) {
                 childLauncher.stop();
             }
         }
-    }
-
-    public boolean status() {
-        return this.working;
     }
 
     public void addChildLauncher(Launcher launcher){
