@@ -66,6 +66,7 @@ public class WSchedulerAutoDetectorUtil {
         clientConfig.setAppDesc(properties.getProperty(WSchedulerConstantType.CLIENT_APP_DESC_PROPERTY_NAME));
         clientConfig.setServerUrl(properties.getProperty(WSchedulerConstantType.CLIENT_SERVER_URL_PROPERTY_NAME));
         clientConfig.setServerPort(Integer.valueOf(properties.getProperty(WSchedulerConstantType.CLIENT_SERVER_PORT_PROPERTY_NAME)));
+        clientConfig.setLogPath(properties.getProperty(WSchedulerConstantType.CLIENT_LOG_PATH_PROPERTY_NAME));
 
         WSchedulerContextHolder.setClientConfig(clientConfig);
     }

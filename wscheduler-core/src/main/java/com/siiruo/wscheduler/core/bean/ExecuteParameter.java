@@ -44,6 +44,26 @@ public class ExecuteParameter implements Serializable {
     public String get(String paramName){
         return this.params.get(paramName);
     }
+
+    public Boolean getBoolean(String paramName){
+        String paramValue=get(paramName);
+        return StringUtil.isNoBlank(paramValue)?"true".equalsIgnoreCase(paramValue):null;
+    }
+
+    public Character getChar(String paramName){
+        String paramValue=get(paramName);
+        return StringUtil.isNoBlank(paramValue)?paramValue.charAt(0):null;
+    }
+
+    public Byte getByte(String paramName){
+        String paramValue=get(paramName);
+        return StringUtil.isNoBlank(paramValue)?Byte.valueOf(paramValue):null;
+    }
+    public Short getShort(String paramName){
+        String paramValue=get(paramName);
+        return StringUtil.isNoBlank(paramValue)?Short.valueOf(paramValue):null;
+    }
+
     public Integer getInteger(String paramName){
         String paramValue=get(paramName);
         return StringUtil.isNoBlank(paramValue)?Integer.valueOf(paramValue):null;
@@ -54,7 +74,7 @@ public class ExecuteParameter implements Serializable {
         return StringUtil.isNoBlank(paramValue)?Long.valueOf(paramValue):null;
     }
 
-     public Double getDouble(String paramName){
+    public Double getDouble(String paramName){
         String paramValue=get(paramName);
         return StringUtil.isNoBlank(paramValue)?Double.valueOf(paramValue):null;
     }
@@ -71,19 +91,27 @@ public class ExecuteParameter implements Serializable {
 
     public Date getDate(String paramName){
         String paramValue=get(paramName);
-        return StringUtil.isNoBlank(paramValue)? DateUtil.parse(paramName):null;
+        return StringUtil.isNoBlank(paramValue)? DateUtil.parse(paramValue):null;
     }
     public Date getDate(String paramName,String format){
         String paramValue=get(paramName);
-        return StringUtil.isNoBlank(paramValue)? DateUtil.parse(paramName,format):null;
+        return StringUtil.isNoBlank(paramValue)? DateUtil.parse(paramValue,format):null;
     }
 
-    public <T> T getObject(String paramName,Class<T> clazz){
+    public <T> T getBean(String paramName, Class<T> clazz){
         if (clazz==null) {
             return null;
         }
-        if (clazz==String.class) {
+        if(clazz==Boolean.class){
+            return (T)getBoolean(paramName);
+        }else if(clazz==Character.class){
+            return (T)getChar(paramName);
+        }else if (clazz==String.class) {
             return (T) get(paramName);
+        }else if(clazz==Byte.class){
+            return (T) getByte(paramName);
+        }else if(clazz==Short.class){
+            return (T) getShort(paramName);
         }else if(clazz==Integer.class){
             return (T) getInteger(paramName);
         }else if(clazz==Long.class){

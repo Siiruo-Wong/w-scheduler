@@ -27,7 +27,7 @@ public class ExecutionWorker implements Worker,Sensor<ExecutionWorker> {
     private WSchedulerClientConfig clientConfig;
     private LifecycleExecutor executor;//ClientExecutor
     private volatile boolean started;
-    private volatile boolean stoped;
+    private volatile boolean stopped;
 
     public ExecutionWorker(LifecycleExecutor executor) {
         this.executor = executor;
@@ -54,40 +54,10 @@ public class ExecutionWorker implements Worker,Sensor<ExecutionWorker> {
         contexts.setHandlers(new Handler[] {contextHandler });
         server.setHandler(contexts);
         try {
-            try {
-                server.start();
-            } catch (Exception e) {
-                if (e.getCause() instanceof BindException) {
-                    int port=this.clientConfig.getClientPort();
-                    boolean isBind=false;
-                    for (;port<=65535;port++){
-                        try {
-                            connector.setPort(port);
-                            server.start();
-                            isBind=true;
-                            break;
-                        } catch (Exception e1) {}
-                    }
-                    if(!isBind){
-                        port=this.clientConfig.getClientPort();
-                        for (;port>0;port--){
-                            try {
-                                connector.setPort(port);
-                                server.start();
-                                isBind=true;
-                                break;
-                            } catch (Exception e1) {}
-                        }
-                    }
-                    if (isBind) {
-                        this.clientConfig.setClientPort(port);
-                    }else{
-                        LOGGER.error("w-scheduler server started error.", e);
-                    }
-                }
+            if (bind(server,connector,this.clientConfig.getClientPort())) {
+                onStart(this);
+                server.join();
             }
-            onStart(this);
-            server.join();
         } catch (Exception e) {
             if (e instanceof InterruptedException) {
                 LOGGER.error("w-scheduler rpc server stopped error.ExecutionWorker", e);
@@ -96,7 +66,7 @@ public class ExecutionWorker implements Worker,Sensor<ExecutionWorker> {
             try {
                 server.stop();
                 server.destroy();
-                threadPoolExecutor.shutdown();
+                threadPoolExecutor.shutdownNow();
                 onStop(this);
             } catch (Exception e) {
                 LOGGER.error("w-scheduler rpc server stopped error.", e);
@@ -126,8 +96,8 @@ public class ExecutionWorker implements Worker,Sensor<ExecutionWorker> {
     @Override
     public void onStop(ExecutionWorker target) {
         LOGGER.info("w-scheduler ExecutionWorker onStop.");
-        if (!this.stoped) {
-            this.stoped =true;
+        if (!this.stopped) {
+            this.stopped =true;
             for (Launcher childLauncher : this.childLaunchers) {
                 childLauncher.stop();
             }
@@ -139,5 +109,44 @@ public class ExecutionWorker implements Worker,Sensor<ExecutionWorker> {
             return;
         }
         this.childLaunchers.add(launcher);
+    }
+
+    private boolean bind(Server server,ServerConnector connector,int defaultPort){
+        boolean rebind=false;
+        boolean isBound=false;
+        try {
+            server.start();
+            isBound=true;
+        } catch (BindException e){
+            rebind=true;
+        } catch (Exception e) {
+            if (e.getCause() instanceof BindException) {
+                rebind=true;
+            }
+        }
+        if (rebind) {
+            int port=defaultPort+1;
+            for (;;){
+                try {
+                    connector.setPort(port);
+                    server.start();
+                    isBound=true;
+                    break;
+                } catch (Exception e1) {}
+
+                if (port>=65535) {
+                    port=defaultPort;
+                }
+                if (port>defaultPort) {
+                    port++;
+                }else{
+                    port--;
+                }
+                if(port<=0){
+                    break;
+                }
+            }
+        }
+        return isBound;
     }
 }

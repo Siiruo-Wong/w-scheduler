@@ -11,6 +11,7 @@ public class WSchedulerClientConfig {
     private String appDesc;
     private String serverUrl;
     private Integer serverPort;
+    private String logPath;
 
 
     public WSchedulerClientConfig() {
@@ -72,6 +73,14 @@ public class WSchedulerClientConfig {
         this.serverPort = serverPort;
     }
 
+    public String getLogPath() {
+        return logPath;
+    }
+
+    public void setLogPath(String logPath) {
+        this.logPath = logPath;
+    }
+
     @Override
     public String toString() {
         return "WSchedulerClientConfig{" +
@@ -82,6 +91,7 @@ public class WSchedulerClientConfig {
                 ", appDesc='" + appDesc + '\'' +
                 ", serverUrl='" + serverUrl + '\'' +
                 ", serverPort=" + serverPort +
+                ", logPath='" + logPath + '\'' +
                 '}';
     }
 }

@@ -5,6 +5,7 @@ import com.siiruo.wscheduler.core.bean.*;
 import com.siiruo.wscheduler.core.exception.WSchedulerRemoteException;
 import com.siiruo.wscheduler.core.type.*;
 import com.siiruo.wscheduler.core.util.JsonUtil;
+import com.sun.management.OperatingSystemMXBean;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.slf4j.Logger;
@@ -16,6 +17,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryUsage;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -80,7 +83,18 @@ public class ExecutionHandler extends AbstractHandler {
         }
         @Override
         public ResponseType dispatch(HttpServletRequest input) {
-            return new DefaultResponseType();
+            OperatingSystemMXBean operatingSystemMXBean =(OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+            double cpuUsed=operatingSystemMXBean.getSystemCpuLoad()*100;
+            MemoryUsage heapMemoryUsage = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
+            double memUsed = heapMemoryUsage.getUsed();
+            double memMax = heapMemoryUsage.getMax();
+            double memInit = heapMemoryUsage.getInit();
+            HealthCheckResponseType response=new HealthCheckResponseType();
+            response.setCpu(cpuUsed);
+            response.setMemInit(memInit);
+            response.setMemUsed(memUsed);
+            response.setMemMax(memMax);
+            return response;
         }
     }
 
