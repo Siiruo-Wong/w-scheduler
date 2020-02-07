@@ -12,6 +12,10 @@ public class WSchedulerClientConfig {
     private String serverUrl;
     private Integer serverPort;
     private String logPath;
+    private Integer coreThreads;
+    private Integer maxThreads;
+    private Long keepAliveTime;
+    private Integer queueCapacity;
 
 
     public WSchedulerClientConfig() {
@@ -81,6 +85,38 @@ public class WSchedulerClientConfig {
         this.logPath = logPath;
     }
 
+    public Integer getCoreThreads() {
+        return coreThreads;
+    }
+
+    public void setCoreThreads(Integer coreThreads) {
+        this.coreThreads = coreThreads;
+    }
+
+    public Integer getMaxThreads() {
+        return maxThreads;
+    }
+
+    public void setMaxThreads(Integer maxThreads) {
+        this.maxThreads = maxThreads;
+    }
+
+    public Long getKeepAliveTime() {
+        return keepAliveTime;
+    }
+
+    public void setKeepAliveTime(Long keepAliveTime) {
+        this.keepAliveTime = keepAliveTime;
+    }
+
+    public Integer getQueueCapacity() {
+        return queueCapacity;
+    }
+
+    public void setQueueCapacity(Integer queueCapacity) {
+        this.queueCapacity = queueCapacity;
+    }
+
     @Override
     public String toString() {
         return "WSchedulerClientConfig{" +
@@ -92,6 +128,10 @@ public class WSchedulerClientConfig {
                 ", serverUrl='" + serverUrl + '\'' +
                 ", serverPort=" + serverPort +
                 ", logPath='" + logPath + '\'' +
+                ", coreThreads=" + coreThreads +
+                ", maxThreads=" + maxThreads +
+                ", keepAliveTime=" + keepAliveTime +
+                ", queueCapacity=" + queueCapacity +
                 '}';
     }
 }

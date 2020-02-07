@@ -23,7 +23,7 @@ public  class NoticeHandler {
         if (CollectionUtil.isEmpty(notices)) {
             return new NoticeResponseType(new ResultType(ResponseCodeType.SUCCESS));
         }
-        String url= URLUtil.buildURL(clientConfig.getServerUrl(),clientConfig.getClientPort(), ApiConstantType.EXECUTOR_NOTICE_PATH_IN_SERVER);
+        String url= URLUtil.buildURL(clientConfig.getServerUrl(),clientConfig.getServerPort(), ApiConstantType.EXECUTOR_NOTICE_PATH_IN_SERVER);
         NoticeResponseType response=null;
         try {
             NoticeRequestType request=new NoticeRequestType();

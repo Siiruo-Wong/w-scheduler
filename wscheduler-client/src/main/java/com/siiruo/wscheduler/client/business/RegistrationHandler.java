@@ -19,7 +19,7 @@ public class RegistrationHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(RegistrationHandler.class);
     private WSchedulerClientConfig clientConfig= WSchedulerContextHolder.getClientConfig();
     public RegisterResponseType register(RegisterRequestType parameter){
-        String url= URLUtil.buildURL(clientConfig.getServerUrl(),clientConfig.getClientPort(), ApiConstantType.EXECUTOR_REGISTER_PATH_IN_SERVER);
+        String url= URLUtil.buildURL(clientConfig.getServerUrl(),clientConfig.getServerPort(), ApiConstantType.EXECUTOR_REGISTER_PATH_IN_SERVER);
         RegisterResponseType response=null;
         try {
             response= HttpClientUtil.doPost(url, parameter, RegisterResponseType.class);

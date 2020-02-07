@@ -35,9 +35,10 @@ public class ExecutionWorker implements Worker,Sensor<ExecutionWorker> {
     }
     @Override
     public void work() {
-        ThreadPoolExecutor threadPoolExecutor =  new ThreadPoolExecutor(50, 200, 60L,
-                                                    TimeUnit.SECONDS,
-                                                    new LinkedBlockingQueue<>(1000),
+
+        ThreadPoolExecutor threadPoolExecutor =  new ThreadPoolExecutor(this.clientConfig.getCoreThreads(), this.clientConfig.getMaxThreads(),
+                                                    this.clientConfig.getKeepAliveTime(), TimeUnit.SECONDS,
+                                                    new LinkedBlockingQueue<>(this.clientConfig.getQueueCapacity()),
                                                     r-> new Thread(r, "ExecutionWorker"),
                                                     (r,e)->new ThreadPoolExecutor.CallerRunsPolicy());
         // ThreadPool threadPool=new QueuedThreadPool(200,50,60*000,-1,new LinkedBlockingQueue<>(1000),null,r-> new Thread(r, "ExecutionWorker"));
